@@ -4,7 +4,8 @@
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
     "main": "htmldiff.js",
     "scripts": {
-        "test": "mocha"
+        "test": "mocha",
+        "install": "coffee --compile src"
     },
     "repository": {
         "type": "git",
@@ -15,10 +16,12 @@
         "htmldiff",
         "html"
     ],
+    "dependencies": {
+        "coffee-script": "*"
+    },
     "devDependencies": {
         "chai": "*",
-        "mocha": "*",
-        "coffee-script": "*"
+        "mocha": "*"
     },
     "author": "The Network Inc.",
     "license": "MIT (Expat)"
