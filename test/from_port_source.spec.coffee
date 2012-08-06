@@ -1,6 +1,6 @@
 describe 'The specs from the ruby source project', ->
   beforeEach ->
-    @cut = require '../src/htmldiff'
+    @cut = require '../src/htmldiff.coffee'
 
   xit 'should diff text', ->
     diff = @cut 'a word is here', 'a nother word is there'
