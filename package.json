@@ -4,7 +4,7 @@
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
     "main": "htmldiff.js",
     "scripts": {
-        "test": "node_modules/mocha/bin/mocha"
+        "test": "mocha"
     },
     "repository": {
         "type": "git",
