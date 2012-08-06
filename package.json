@@ -1,0 +1,20 @@
+{
+  "name": "htmldiff.js",
+  "version": "0.0.0",
+  "description": "HTML Diffing in JavaScript (CoffeeScript)",
+  "main": "htmldiff.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tnwinc/htmldiff.js.git"
+  },
+  "keywords": [
+    "diff",
+    "htmldiff",
+    "html"
+  ],
+  "author": "The Network Inc.",
+  "license": "MIT (Expat)"
+}
