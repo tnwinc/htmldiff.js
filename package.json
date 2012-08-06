@@ -15,7 +15,7 @@
         "htmldiff",
         "html"
     ],
-    "devDependancies": {
+    "devDependencies": {
         "chai": "*",
         "mocha": "*",
         "coffee-script": "*"
