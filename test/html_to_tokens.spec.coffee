@@ -18,3 +18,10 @@ describe 'html_to_tokens', ->
 
     it 'should return 11', ->
       (expect @res.length).to.equal 11
+
+  it 'should identify contiguous whitespace as a single token', ->
+    (expect @cut 'a   b').to.eql ['a', '   ', 'b']
+
+  it 'should identify self closing tags as tokens', ->
+    (expect @cut '<p>hello</br>goodbye</p>')
+    .eql ['<p>', 'hello', '</br>', 'goodbye', '</p>']
