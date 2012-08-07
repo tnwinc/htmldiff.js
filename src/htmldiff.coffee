@@ -7,7 +7,7 @@ is_start_of_tag = (char)->
 is_whitespace = (char)->
   /\s/.test char
 
-html_to_words = (html)->
+html_to_tokens = (html)->
   mode = 'char'
   current_word = ''
   words = []
@@ -58,8 +58,8 @@ html_to_words = (html)->
 diff = (before, after)->
   return before if before is after
 
-  before = html_to_words before
-  after = html_to_words after
+  before = html_to_tokens before
+  after = html_to_tokens after
 
-diff.html_to_words = html_to_words
+diff.html_to_tokens = html_to_tokens
 module.exports = diff
