@@ -8,3 +8,10 @@ describe 'Diff', ->
 
     it 'should return the text', ->
       (expect @res).equal 'input text'
+
+  xdescribe 'When a letter is added', ->
+    beforeEach ->
+      @res = @cut 'input', 'input 2'
+
+    it 'should mark the new letter', ->
+      (expect @res).to.equal 'input <ins>2</ins>'
