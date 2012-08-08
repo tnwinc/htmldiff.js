@@ -103,23 +103,33 @@ find_match = (before_tokens, after_tokens,
 
 recursively_find_matching_blocks = (before_tokens, after_tokens,
   index_of_before_locations_in_after_tokens,
-  start_in_before, end_in_before, start_in_after, end_in_after,
+  start_in_before, end_in_before,
+  start_in_after, end_in_after,
   matching_blocks)->
 
   match = (find_match before_tokens, after_tokens,
     index_of_before_locations_in_after_tokens,
-    start_in_before, end_in_before, start_in_after, end_in_after)
+    start_in_before, end_in_before,
+    start_in_after, end_in_after)
 
   if match?
     if start_in_before < match.start_in_before\
     and start_in_after < match.start_in_after
-      recursively_find_matching_blocks start_in_before, match.start_in_before,
-        start_in_after, match.start_in_after, matching_blocks
+      recursively_find_matching_blocks before_tokens, after_tokens,
+        index_of_before_locations_in_after_tokens,
+        start_in_before, match.start_in_before,
+        start_in_after, match.start_in_after,
+        matching_blocks
 
     matching_blocks.push match
-    if match.end_in_before < end_in_before and match.end_in_after < end_in_after
-      recursively_find_matching_blocks match.end_in_before, end_in_before,
-        match.end_in_after, end_in_after, matching_blocks
+
+    if match.end_in_before <= end_in_before\
+    and match.end_in_after <= end_in_after
+      recursively_find_matching_blocks before_tokens, after_tokens,
+        index_of_before_locations_in_after_tokens,
+        match.end_in_before + 1, end_in_before,
+        match.end_in_after + 1, end_in_after,
+        matching_blocks
 
 create_index = (p)->
   throw new Error 'params must have find_these key' unless p.find_these?

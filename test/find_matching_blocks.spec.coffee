@@ -89,3 +89,36 @@ describe 'find_matching_blocks', ->
 
       it 'should return a match', ->
         (expect @res.length).to.equal 1
+
+    describe 'When called with multiple matches', ->
+      beforeEach ->
+        before = 'the dog bit a man'.split ' '
+        after = 'the large brown dog bit a tall man'.split ' '
+        @res = @cut before, after
+
+      it 'should return 3 matches', ->
+        (expect @res.length).to.equal 3
+
+      it 'should match "the"', ->
+        (expect @res[0]).eql
+          start_in_before: 0
+          start_in_after: 0
+          end_in_before: 0
+          end_in_after: 0
+          length: 1
+
+      it 'should match "dog bit a"', ->
+        (expect @res[1]).eql
+          start_in_before: 1
+          start_in_after: 3
+          end_in_before: 3
+          end_in_after: 5
+          length: 3
+
+      it 'should match "man"', ->
+        (expect @res[2]).eql
+          start_in_before: 4
+          start_in_after: 7
+          end_in_before: 4
+          end_in_after: 7
+          length: 1
