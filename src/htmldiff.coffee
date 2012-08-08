@@ -139,7 +139,9 @@ find_matching_blocks = (before_tokens, after_tokens)->
   index_of_before_locations_in_after_tokens =
     create_index find_these: before_tokens, in_these: after_tokens
   matching_blocks = []
-  recursively_find_matching_blocks 0, before_tokens.length,
+  recursively_find_matching_blocks before_tokens, after_tokens,
+    index_of_before_locations_in_after_tokens,
+    0, before_tokens.length,
     0, after_tokens.length, matching_blocks
   return matching_blocks
 
