@@ -22,7 +22,7 @@ describe 'find_matching_blocks', ->
         (expect @res).to.exist
         (expect @res.start_in_before).equal 0
         (expect @res.start_in_after).equal 0
-        (expect @res.size).equal 3
+        (expect @res.length).equal 3
         (expect @res.end_in_before).equal 2
         (expect @res.end_in_after).equal 2
 

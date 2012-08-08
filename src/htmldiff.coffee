@@ -10,9 +10,9 @@ is_whitespace = (char)->
 util = require 'util'
 
 class Match
-  constructor: (@start_in_before, @start_in_after, @size)->
-    @end_in_before = (@start_in_before + @size) - 1
-    @end_in_after = (@start_in_after + @size) - 1
+  constructor: (@start_in_before, @start_in_after, @length)->
+    @end_in_before = (@start_in_before + @length) - 1
+    @end_in_after = (@start_in_after + @length) - 1
 
 html_to_tokens = (html)->
   mode = 'char'
@@ -67,11 +67,9 @@ find_match = (before_tokens, after_tokens,
   start_in_before, end_in_before,
   start_in_after, end_in_after)->
 
-  debugger
-
   best_match_in_before = start_in_before
   best_match_in_after = start_in_after
-  best_match_size = 0
+  best_match_length = 0
 
   match_length_at = {}
 
@@ -90,18 +88,16 @@ find_match = (before_tokens, after_tokens,
       new_match_length = match_length_at[index_in_after - 1] + 1
       new_match_length_at[index_in_after] = new_match_length
 
-      if new_match_length > best_match_size
+      if new_match_length > best_match_length
         best_match_in_before = index_in_before - new_match_length + 1
         best_match_in_after = index_in_after - new_match_length + 1
-        best_match_size = new_match_length
+        best_match_length = new_match_length
 
     match_length_at = new_match_length_at
 
-  unless best_match_size is 0
+  unless best_match_length is 0
     match = (new Match best_match_in_before, best_match_in_after,\
-    best_match_size)
-
-    console.log "Match: #{util.inspect match}"
+    best_match_length)
 
   return match
 
@@ -114,7 +110,7 @@ recursively_find_matching_blocks = (before_tokens, after_tokens,
     index_of_before_locations_in_after_tokens,
     start_in_before, end_in_before, start_in_after, end_in_after)
 
-  if match
+  if match?
     if start_in_before < match.start_in_before\
     and start_in_after < match.start_in_after
       recursively_find_matching_blocks start_in_before, match.start_in_before,
@@ -143,8 +139,8 @@ find_matching_blocks = (before_tokens, after_tokens)->
   index_of_before_locations_in_after_tokens =
     create_index find_these: before_tokens, in_these: after_tokens
   matching_blocks = []
-  recursively_find_matching_blocks 0, before_tokens.size,
-    0, after_tokens.size, matching_blocks
+  recursively_find_matching_blocks 0, before_tokens.length,
+    0, after_tokens.length, matching_blocks
   return matching_blocks
 
 
