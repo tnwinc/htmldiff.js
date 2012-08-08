@@ -7,8 +7,6 @@ is_start_of_tag = (char)->
 is_whitespace = (char)->
   /\s/.test char
 
-util = require 'util'
-
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
     @end_in_before = (@start_in_before + @length) - 1
@@ -131,6 +129,8 @@ recursively_find_matching_blocks = (before_tokens, after_tokens,
         match.end_in_after + 1, end_in_after,
         matching_blocks
 
+  return matching_blocks
+
 create_index = (p)->
   throw new Error 'params must have find_these key' unless p.find_these?
   throw new Error 'params must have in_these key' unless p.in_these?
@@ -146,18 +146,21 @@ create_index = (p)->
   return index
 
 find_matching_blocks = (before_tokens, after_tokens)->
-  index_of_before_locations_in_after_tokens =
-    create_index find_these: before_tokens, in_these: after_tokens
   matching_blocks = []
+  index_of_before_locations_in_after_tokens =
+    create_index
+      find_these: before_tokens
+      in_these: after_tokens
+
   recursively_find_matching_blocks before_tokens, after_tokens,
     index_of_before_locations_in_after_tokens,
     0, before_tokens.length,
-    0, after_tokens.length, matching_blocks
-  return matching_blocks
-
+    0, after_tokens.length,
+    matching_blocks
 
 calculate_operations = (before_tokens, after_tokens)->
-  #find matches
+  matches = find_matching_blocks before_tokens, after_tokens
+
   #--work on matches--
 
 
@@ -168,8 +171,11 @@ diff = (before, after)->
   after = html_to_tokens after
 
 diff.html_to_tokens = html_to_tokens
+
 diff.find_matching_blocks = find_matching_blocks
 find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
+
 diff.calculate_operations = calculate_operations
+
 module.exports = diff
