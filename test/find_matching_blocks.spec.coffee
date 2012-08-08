@@ -39,8 +39,6 @@ describe 'find_matching_blocks', ->
           (expect @res.end_in_before).to.equal 1
           (expect @res.end_in_after).to.equal 2
 
-
-
     describe 'When these is no match', ->
       beforeEach ->
         before = ['the', 'rat', 'sqeaks']
@@ -49,8 +47,6 @@ describe 'find_matching_blocks', ->
 
       it 'should return nothing', ->
         (expect @res).to.not.exist
-
-
 
   describe 'index_tokens', ->
     beforeEach ->
