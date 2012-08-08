@@ -7,6 +7,13 @@ is_start_of_tag = (char)->
 is_whitespace = (char)->
   /\s/.test char
 
+util = require 'util'
+
+class Match
+  constructor: (@start_in_before, @start_in_after, @size)->
+    @end_in_before = (@start_in_before + @size) - 1
+    @end_in_after = (@start_in_after + @size) - 1
+
 html_to_tokens = (html)->
   mode = 'char'
   current_word = ''
@@ -57,7 +64,10 @@ html_to_tokens = (html)->
 
 find_match = (before_tokens, after_tokens,
   index_of_before_locations_in_after_tokens,
-  start_in_before, end_in_before, start_in_after, end_in_after)->
+  start_in_before, end_in_before,
+  start_in_after, end_in_after)->
+
+  debugger
 
   best_match_in_before = start_in_before
   best_match_in_after = start_in_after
@@ -65,16 +75,18 @@ find_match = (before_tokens, after_tokens,
 
   match_length_at = {}
 
-  for index_in_before in [start_in_before..end_in_before]
+  for index_in_before in [start_in_before...end_in_before]
     new_match_length_at = {}
-
+    looking_for = before_tokens[index_in_before]
     locations_in_after =
-      index_of_before_locations_in_after_tokens[before_tokens[index_in_before]]
-    for index_in_after in locations_in_after
-      next  if index_in_after < start_in_after
+      index_of_before_locations_in_after_tokens[looking_for]
 
+    for index_in_after in locations_in_after
+      continue if index_in_after < start_in_after
       break if index_in_after >= end_in_after
 
+      unless match_length_at[index_in_after - 1]?
+        match_length_at[index_in_after - 1] = 0
       new_match_length = match_length_at[index_in_after - 1] + 1
       new_match_length_at[index_in_after] = new_match_length
 
@@ -84,6 +96,14 @@ find_match = (before_tokens, after_tokens,
         best_match_size = new_match_length
 
     match_length_at = new_match_length_at
+
+  unless best_match_size is 0
+    match = (new Match best_match_in_before, best_match_in_after,\
+    best_match_size)
+
+    console.log "Match: #{util.inspect match}"
+
+  return match
 
 recursively_find_matching_blocks = (before_tokens, after_tokens,
   index_of_before_locations_in_after_tokens,
@@ -125,7 +145,7 @@ find_matching_blocks = (before_tokens, after_tokens)->
   matching_blocks = []
   recursively_find_matching_blocks 0, before_tokens.size,
     0, after_tokens.size, matching_blocks
-  matching_blocks
+  return matching_blocks
 
 
 calculate_operations = (before_tokens, after_tokens)->
