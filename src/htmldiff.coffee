@@ -158,8 +158,9 @@ find_matching_blocks = (before_tokens, after_tokens)->
     0, after_tokens.length,
     matching_blocks
 
-
 calculate_operations = (before_tokens, after_tokens)->
+  throw new Error 'before_tokens?' unless before_tokens?
+  throw new Error 'after_tokens?' unless after_tokens?
   position_in_before = position_in_after = 0
   operations = []
   action_map =
@@ -185,9 +186,11 @@ calculate_operations = (before_tokens, after_tokens)->
       operations.push
         action: action_up_to_match_positions
         start_in_before: position_in_before
-        end_in_before: match.start_in_before - 1
+        end_in_before: (match.start_in_before - 1 \
+        unless action_up_to_match_positions is 'insert')
         start_in_after: position_in_after
-        end_in_after: match.start_in_after - 1
+        end_in_after: (match.start_in_after - 1 \
+        unless action_up_to_match_positions is 'delete')
 
     unless match.length is 0
       operations.push
@@ -201,7 +204,6 @@ calculate_operations = (before_tokens, after_tokens)->
     position_in_after = match.end_in_after + 1
 
   return operations
-
 
 diff = (before, after)->
   return before if before is after
