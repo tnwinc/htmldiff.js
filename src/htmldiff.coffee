@@ -170,7 +170,7 @@ calculate_operations = (before_tokens, after_tokens)->
     'true,true'  : 'none'
 
   matches = find_matching_blocks before_tokens, after_tokens
-  #maybe I need to add a 'blank' match here
+  matches.push new Match before_tokens.length,  after_tokens.length, 0
 
   for match, index in matches
     match_starts_at_current_position_in_before =
