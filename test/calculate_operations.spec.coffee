@@ -153,7 +153,6 @@ describe 'calculate_operations', ->
           @res = @cut before, after
 
         it 'should return 2 operations', ->
-          console.log @res
           (expect @res.length).to.equal 2
 
         it 'should have a replace at the end', ->
