@@ -158,10 +158,49 @@ find_matching_blocks = (before_tokens, after_tokens)->
     0, after_tokens.length,
     matching_blocks
 
-calculate_operations = (before_tokens, after_tokens)->
-  matches = find_matching_blocks before_tokens, after_tokens
 
-  #--work on matches--
+calculate_operations = (before_tokens, after_tokens)->
+  position_in_before = position_in_after = 0
+  operations = []
+  action_map =
+    'false,false': 'replace'
+    'true,false' : 'insert'
+    'false,true' : 'delete'
+    'true,true'  : 'none'
+
+  matches = find_matching_blocks before_tokens, after_tokens
+  #maybe I need to add a 'blank' match here
+
+  for match, index in matches
+    match_starts_at_current_position_in_before =
+      position_in_before is match.start_in_before
+    match_starts_at_current_position_in_after =
+      position_in_after is match.start_in_after
+
+    action_up_to_match_positions =
+    action_map[[match_starts_at_current_position_in_before,\
+    match_starts_at_current_position_in_after].toString()]
+
+    if action_up_to_match_positions isnt 'none'
+      operations.push
+        action: action_up_to_match_positions
+        start_in_before: position_in_before
+        end_in_before: match.start_in_before - 1
+        start_in_after: position_in_after
+        end_in_after: match.start_in_after - 1
+
+    unless match.length is 0
+      operations.push
+        action: 'equal'
+        start_in_before: match.start_in_before
+        end_in_before: match.end_in_before
+        start_in_after: match.start_in_after
+        end_in_after: match.end_in_after
+
+    position_in_before = match.end_in_before + 1
+    position_in_after = match.end_in_after + 1
+
+  return operations
 
 
 diff = (before, after)->
