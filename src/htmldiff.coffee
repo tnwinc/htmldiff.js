@@ -205,11 +205,24 @@ calculate_operations = (before_tokens, after_tokens)->
 
   return operations
 
+op_map =
+  equal: (op, before_tokens, after_tokens)->
+    before_tokens[op.start_in_before..op.end_in_before].join ' '
+
+render_operations = (before_tokens, after_tokens, operations)->
+  rendering = ''
+  for op in operations
+    rendering += op_map[op.action] op, before_tokens, after_tokens
+
+  return rendering
+
 diff = (before, after)->
   return before if before is after
 
   before = html_to_tokens before
   after = html_to_tokens after
+
+  calculate_operations before, after
 
 diff.html_to_tokens = html_to_tokens
 
@@ -218,5 +231,7 @@ find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
 
 diff.calculate_operations = calculate_operations
+
+diff.render_operations = render_operations
 
 module.exports = diff
