@@ -4,5 +4,22 @@
 [![Build Status](https://secure.travis-ci.org/tnwinc/htmldiff.js.png)](http://travis-ci.org/tnwinc/htmldiff.js)
 
 `htmldiff.js` is a CoffeeScript port of https://github.com/myobie/htmldiff
+(This one has a few more tests.)
+
+This is diffing that understands HTML. Best suited for cases when you
+want to show a diff of user-generated HTML (like from a wysiwyg editor).
+
+You use it like this:
+
+```coffeescript
+
+  diff = require 'htmldiff.js'
+  console.log diff '<p>this is some text</p>', '<p>this is some more text</p>'
+```
+And you get:
+
+```html
+<p>this is some <ins>more </ins>text</p>
+```
 
 Licensed under the MIT License. See the `LICENSE` file for details.
