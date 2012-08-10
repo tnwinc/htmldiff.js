@@ -54,3 +54,12 @@ describe 'render_operations', ->
 
     it 'should make sure the <ins/del> tags are within the <p> tags', ->
       (expect @res).to.equal '<p>a<ins> b</ins></p><p><ins>c</ins></p>'
+
+    describe 'When there is a change at the beginning, in a <p>', ->
+      beforeEach ->
+        before = ['<p>', 'this', ' ', 'is', ' ', 'awesome', '</p>']
+        after = ['<p>', 'I', ' ', 'is', ' ', 'awesome', '</p>']
+        @res = @cut before, after
+
+      it 'should keep the change inside the <p>', ->
+        (expect @res).to.equal '<p><del>this</del><ins>I</ins> is awesome</p>'
