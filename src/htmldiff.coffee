@@ -275,7 +275,7 @@ diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
 
 if typeof define is 'function'
-  define [], diff
+  define [], ()-> diff
 else if module?
   module.exports = diff
 else
