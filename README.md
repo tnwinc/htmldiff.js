@@ -9,6 +9,7 @@
 This is diffing that understands HTML. Best suited for cases when you
 want to show a diff of user-generated HTML (like from a wysiwyg editor).
 
+##Usage
 You use it like this:
 
 ```coffeescript
@@ -21,5 +22,10 @@ And you get:
 ```html
 <p>this is some <ins>more </ins>text</p>
 ```
+##Module
+
+It should be multi-module aware. ie. it should work as a node.js module
+or an AMD (RequireJS) module, or even just as a script tag.
+
 
 Licensed under the MIT License. See the `LICENSE` file for details.

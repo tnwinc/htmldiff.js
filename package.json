@@ -1,6 +1,6 @@
 {
     "name": "htmldiff",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
     "main": "htmldiff.js",
     "scripts": {

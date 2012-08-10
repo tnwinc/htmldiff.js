@@ -266,14 +266,17 @@ diff = (before, after)->
 
   render_operations before, after, ops
 
-diff.html_to_tokens = html_to_tokens
 
+diff.html_to_tokens = html_to_tokens
 diff.find_matching_blocks = find_matching_blocks
 find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
-
 diff.calculate_operations = calculate_operations
-
 diff.render_operations = render_operations
 
-module.exports = diff
+if typeof define is 'function'
+  define [], diff
+else if module?
+  module.exports = diff
+else
+  this.htmldiff = diff
