@@ -1,12 +1,6 @@
-is_end_of_tag = (char)->
-  char is '>'
-
-is_start_of_tag = (char)->
-  char is '<'
-
-is_whitespace = (char)->
-  /\s/.test char
-
+is_end_of_tag = (char)-> char is '>'
+is_start_of_tag = (char)-> char is '<'
+is_whitespace = (char)-> /\s/.test char
 is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
 isnt_tag = (token)-> not is_tag token
 
@@ -239,7 +233,6 @@ wrap = (tag, content)->
 
   return rendering
 
-
 op_map =
   equal: (op, before_tokens, after_tokens)->
     before_tokens[op.start_in_before..op.end_in_before].join ''
@@ -255,7 +248,6 @@ op_map =
 op_map.replace = (op, before_tokens, after_tokens)->
   (op_map.delete op, before_tokens, after_tokens) +
   (op_map.insert op, before_tokens, after_tokens)
-
 
 render_operations = (before_tokens, after_tokens, operations)->
   rendering = ''
