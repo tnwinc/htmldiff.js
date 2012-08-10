@@ -209,6 +209,19 @@ op_map =
   equal: (op, before_tokens, after_tokens)->
     before_tokens[op.start_in_before..op.end_in_before].join ' '
 
+  insert: (op, before_tokens, after_tokens)->
+    val = after_tokens[op.start_in_after..op.end_in_after].join ' '
+    "<ins> #{val}</ins>"
+
+  delete: (op, before_tokens, after_tokens)->
+    val = before_tokens[op.start_in_before..op.end_in_before].join ' '
+    "<del> #{val}</del>"
+
+op_map.replace = (op, before_tokens, after_tokens)->
+  (op_map.delete op, before_tokens, after_tokens) +
+  (op_map.insert op, before_tokens, after_tokens)
+
+
 render_operations = (before_tokens, after_tokens, operations)->
   rendering = ''
   for op in operations
@@ -222,7 +235,9 @@ diff = (before, after)->
   before = html_to_tokens before
   after = html_to_tokens after
 
-  calculate_operations before, after
+  ops = calculate_operations before, after
+
+  render_operations before, after, ops
 
 diff.html_to_tokens = html_to_tokens
 
