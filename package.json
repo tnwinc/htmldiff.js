@@ -11,6 +11,9 @@
         "type": "git",
         "url": "git://github.com/tnwinc/htmldiff.js.git"
     },
+    "issues": {
+      "url": "https://github.com/tnwinc/htmldiff.js/issues"
+    },
     "keywords": [
         "diff",
         "htmldiff",
