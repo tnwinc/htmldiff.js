@@ -7,6 +7,9 @@ is_start_of_tag = (char)->
 is_whitespace = (char)->
   /\s/.test char
 
+is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
+isnt_tag = (token)-> not is_tag token
+
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
     @end_in_before = (@start_in_before + @length) - 1
@@ -205,17 +208,49 @@ calculate_operations = (before_tokens, after_tokens)->
 
   return operations
 
+consecutive_where = (start, content, predicate)->
+  content = content[start..content.length]
+  last_matching_index = undefined
+
+  for token, index in content
+    answer = predicate token
+    last_matching_index = index if answer is yes
+    break if answer is no
+
+  return content[0..last_matching_index] if last_matching_index?
+  return []
+
+wrap = (tag, content)->
+  rendering = ''
+  position = 0
+  length = content.length
+
+  loop
+    break if position >= length
+    non_tags = consecutive_where position, content, isnt_tag
+    position += non_tags.length
+    if non_tags.length isnt 0
+      rendering += "<#{tag}>#{non_tags.join ''}</#{tag}>"
+
+    break if position >= length
+    tags = consecutive_where position, content, is_tag
+    position += tags.length
+    rendering += tags.join ''
+
+  return rendering
+
+
 op_map =
   equal: (op, before_tokens, after_tokens)->
-    before_tokens[op.start_in_before..op.end_in_before].join ' '
+    before_tokens[op.start_in_before..op.end_in_before].join ''
 
   insert: (op, before_tokens, after_tokens)->
-    val = after_tokens[op.start_in_after..op.end_in_after].join ' '
-    "<ins> #{val}</ins>"
+    val = after_tokens[op.start_in_after..op.end_in_after]
+    wrap 'ins', val
 
   delete: (op, before_tokens, after_tokens)->
-    val = before_tokens[op.start_in_before..op.end_in_before].join ' '
-    "<del> #{val}</del>"
+    val = before_tokens[op.start_in_before..op.end_in_before]
+    wrap 'del', val
 
 op_map.replace = (op, before_tokens, after_tokens)->
   (op_map.delete op, before_tokens, after_tokens) +
