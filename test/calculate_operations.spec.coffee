@@ -32,7 +32,7 @@ describe 'calculate_operations', ->
           after = 'working on it'.split ' '
           @res = @cut before, after
 
-        it 'should result in 3 operation', ->
+        it 'should result in 3 operations', ->
           (expect @res.length).to.equal 3
 
         it 'should show an insert for "on"', ->
@@ -196,3 +196,42 @@ describe 'calculate_operations', ->
             end_in_before  : 5
             start_in_after : 4
             end_in_after   : undefined
+
+  describe 'Action Combination', ->
+    describe 'Absorb single-whitespace to make contiguous replace actions', ->
+      beforeEach ->
+        #There are a bunch of replaces, but, because whitespace is
+        #tokenized, they are broken up with equals. We want to combine
+        #them into a contiguous replace operation.
+        before = ['I', ' ', 'am', ' ', 'awesome']
+        after = ['You', ' ', 'are', ' ', 'great']
+        @res = @cut before, after
+
+      it 'should return 1 action', ->
+        (expect @res.length).to.equal 1
+
+      it 'should return the correct replace action', ->
+        (expect @res[0]).eql
+          action: 'replace'
+          start_in_before: 0
+          end_in_before: 4
+          start_in_after: 0
+          end_in_after: 4
+
+      describe 'but dont absorb non-single-whitespace tokens', ->
+        beforeEach ->
+          before = ['I', '  ', 'am', ' ', 'awesome']
+          after = ['You', '  ', 'are', ' ', 'great']
+          @res = @cut before, after
+
+        it 'should return 3 actions', ->
+          (expect @res.length).to.equal 3
+
+        it 'should have a replace first', ->
+          (expect @res[0].action).to.equal 'replace'
+
+        it 'should have an equal second', ->
+          (expect @res[1].action).to.equal 'equal'
+
+        it 'should have a replace last', ->
+          (expect @res[2].action).to.equal 'replace'

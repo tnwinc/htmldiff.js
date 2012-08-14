@@ -1,6 +1,6 @@
 is_end_of_tag = (char)-> char is '>'
 is_start_of_tag = (char)-> char is '<'
-is_whitespace = (char)-> /\s/.test char
+is_whitespace = (char)-> /^\s+$/.test char
 is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
 isnt_tag = (token)-> not is_tag token
 
@@ -200,7 +200,23 @@ calculate_operations = (before_tokens, after_tokens)->
     position_in_before = match.end_in_before + 1
     position_in_after = match.end_in_after + 1
 
-  return operations
+  post_processed = []
+  last_op = action: 'none'
+  is_single_whitespace = (op)->
+    return no unless op.action is 'equal'
+    return no unless op.end_in_before - op.start_in_before is 0
+    return /^\s$/.test before_tokens[op.start_in_before..op.end_in_before]
+
+  for op in operations
+    if ((is_single_whitespace op) and last_op.action is 'replace') or
+    (op.action is 'replace' and last_op.action is 'replace')
+      last_op.end_in_before = op.end_in_before
+      last_op.end_in_after = op.end_in_after
+    else
+      post_processed.push op
+      last_op = op
+
+  return post_processed
 
 consecutive_where = (start, content, predicate)->
   content = content[start..content.length]
