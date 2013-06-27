@@ -272,7 +272,23 @@ render_operations = (before_tokens, after_tokens, operations)->
 
   return rendering
 
-diff = (before, after)->
+render_operations_dual_pane = (before_tokens, after_tokens, operations)->
+  before_render = ''
+  after_render = ''
+  for op in operations
+    next_block = op_map[op.action] op, before_tokens, after_tokens
+    switch op.action
+      when "equal"
+        before_render += next_block
+        after_render += next_block
+      when "insert" then after_render += next_block
+      when "delete" then before_render += next_block
+      when "replace"
+        before_render += next_block.substring 0, next_block.indexOf '<ins>'
+        after_render += next_block.substring next_block.indexOf '<ins>'
+  { before: before_render, after: after_render }
+
+diff = (before, after, dual_pane)->
   return before if before is after
 
   before = html_to_tokens before
@@ -280,8 +296,10 @@ diff = (before, after)->
 
   ops = calculate_operations before, after
 
-  render_operations before, after, ops
-
+  if dual_pane
+    render_operations_dual_pane before, after, ops
+  else
+    render_operations before, after, ops
 
 diff.html_to_tokens = html_to_tokens
 diff.find_matching_blocks = find_matching_blocks
@@ -289,6 +307,7 @@ find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
 diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
+diff.render_operations_dual_pane = render_operations_dual_pane;
 
 if typeof define is 'function'
   define [], ()-> diff
