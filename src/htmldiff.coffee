@@ -262,13 +262,17 @@ op_map =
     wrap 'del', val
 
 op_map.replace = (op, before_tokens, after_tokens)->
-  (op_map.delete op, before_tokens, after_tokens) +
-  (op_map.insert op, before_tokens, after_tokens)
+  [(op_map.delete op, before_tokens, after_tokens),
+  (op_map.insert op, before_tokens, after_tokens)]
 
 render_operations = (before_tokens, after_tokens, operations)->
   rendering = ''
   for op in operations
-    rendering += op_map[op.action] op, before_tokens, after_tokens
+    result = op_map[op.action] op, before_tokens, after_tokens
+    if op.action == 'insert'
+      rendering += result[0] + result[1]
+    else
+      rendering += result
 
   return rendering
 
@@ -284,8 +288,8 @@ render_operations_dual_pane = (before_tokens, after_tokens, operations)->
       when "insert" then after_render += next_block
       when "delete" then before_render += next_block
       when "replace"
-        before_render += next_block.substring 0, next_block.indexOf '<ins>'
-        after_render += next_block.substring next_block.indexOf '<ins>'
+        before_render += next_block[0]
+        after_render += next_block[1]
   { before: before_render, after: after_render }
 
 diff = (before, after, dual_pane)->
