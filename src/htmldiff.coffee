@@ -311,7 +311,7 @@ find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
 diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
-diff.render_operations_dual_pane = render_operations_dual_pane;
+diff.render_operations_dual_pane = render_operations_dual_pane
 
 if typeof define is 'function'
   define [], ()-> diff
