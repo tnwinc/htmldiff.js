@@ -269,7 +269,7 @@ render_operations = (before_tokens, after_tokens, operations)->
   rendering = ''
   for op in operations
     result = op_map[op.action] op, before_tokens, after_tokens
-    if op.action == 'insert'
+    if op.action is 'replace'
       rendering += result[0] + result[1]
     else
       rendering += result
