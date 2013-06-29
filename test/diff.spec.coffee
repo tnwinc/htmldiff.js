@@ -15,3 +15,10 @@ describe 'Diff', ->
 
     it 'should mark the new letter', ->
       (expect @res).to.equal 'input <ins>2</ins>'
+
+  describe 'When dual pane is checked', ->
+    beforeEach ->
+      @res = @cut.diff_dual_pane 'input text', 'input text'
+
+    it 'should return', ->
+      (expect @res).eql { before: 'input text', after: 'input text' }

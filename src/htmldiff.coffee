@@ -9,6 +9,9 @@ class Match
     @end_in_before = (@start_in_before + @length) - 1
     @end_in_after = (@start_in_after + @length) - 1
 
+return_dual_pane = (before, after)->
+  { before: before, after: after }
+
 html_to_tokens = (html)->
   mode = 'char'
   current_word = ''
@@ -290,9 +293,20 @@ render_operations_dual_pane = (before_tokens, after_tokens, operations)->
       when "replace"
         before_render += next_block[0]
         after_render += next_block[1]
-  { before: before_render, after: after_render }
 
-diff = (before, after, dual_pane)->
+  return_dual_pane(before_render, after_render)
+
+diff_dual_pane = (before, after ) ->
+  return return_dual_pane(before, after) if before is after
+
+  before = html_to_tokens before
+  after = html_to_tokens after
+
+  ops = calculate_operations before, after
+
+  render_operations_dual_pane before, after, ops
+
+diff = (before, after)->
   return before if before is after
 
   before = html_to_tokens before
@@ -300,10 +314,7 @@ diff = (before, after, dual_pane)->
 
   ops = calculate_operations before, after
 
-  if dual_pane
-    render_operations_dual_pane before, after, ops
-  else
-    render_operations before, after, ops
+  render_operations before, after, ops
 
 diff.html_to_tokens = html_to_tokens
 diff.find_matching_blocks = find_matching_blocks
@@ -312,6 +323,7 @@ find_matching_blocks.create_index = create_index
 diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
 diff.render_operations_dual_pane = render_operations_dual_pane
+diff.diff_dual_pane = diff_dual_pane
 
 if typeof define is 'function'
   define [], ()-> diff
