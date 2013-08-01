@@ -22,7 +22,7 @@ html_to_tokens = (html)->
       when 'script'
         if is_end_of_tag char
           current_word += '>'
-          end = current_word.substr current_word.length - 8
+          end = current_word.substr current_word.length - 9
           if end is '</script>'
             words.push current_word
             current_word = ''
