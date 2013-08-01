@@ -19,8 +19,24 @@ html_to_tokens = (html)->
 
   for char in html
     switch mode
-      when 'tag'
+      when 'script'
         if is_end_of_tag char
+          current_word += '>'
+          end = current_word.substr current_word.length - 8
+          if end is '</script>'
+            words.push current_word
+            current_word = ''
+            if is_whitespace char
+              mode = 'whitespace'
+            else
+              mode = 'char'
+        else
+          current_word += char
+      when 'tag'
+        if current_word is '<script'
+          mode = 'script'
+          current_word += char
+        else if is_end_of_tag char
           current_word += '>'
           words.push current_word
           current_word = ''
