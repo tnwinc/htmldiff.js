@@ -3,6 +3,10 @@ is_start_of_tag = (char)-> char is '<'
 is_whitespace = (char)-> /^\s+$/.test char
 is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
 isnt_tag = (token)-> not is_tag token
+is_script_tag = (token) -> token is '<script'
+ends_in_end_script_tag = (token) -> 
+  token_end = token.substr token.length - 9
+  token_end is '</script>'
 
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
@@ -22,8 +26,7 @@ html_to_tokens = (html)->
       when 'script'
         if is_end_of_tag char
           current_word += '>'
-          end = current_word.substr current_word.length - 9
-          if end is '</script>'
+          if ends_in_end_script_tag current_word
             words.push current_word
             current_word = ''
             if is_whitespace char
@@ -33,7 +36,7 @@ html_to_tokens = (html)->
         else
           current_word += char
       when 'tag'
-        if current_word is '<script'
+        if is_script_tag current_word
           mode = 'script'
           current_word += char
         else if is_end_of_tag char
