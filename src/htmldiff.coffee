@@ -4,20 +4,60 @@ is_whitespace = (char)-> /^\s+$/.test char
 is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
 isnt_tag = (token)-> not is_tag token
 
+###
+ * Checks if the current word is the beginning of an atomic tag. An atomic tag is one whose
+ * child nodes should not be compared - the entire tag should be treated as one token.
+ *
+ * @param {string} word The characters of the current token read so far.
+ *
+ * @return {string|null} The name of the atomic tag if the word will be an atomic tag,
+ *    null otherwise
+###
+is_start_of_atomic_tag = (word)->
+  result = /^<(iframe|object|math|svg)/.exec word
+  result = result[1] if result
+  return result
+
+###
+ * Checks if the current word is the end of an atomic tag (i.e. it has all the characters,
+ * except for the end bracket of the closing tag, such as "<iframe></iframe").
+ *
+ * @param {string} word The characters of the current token read so far.
+ * @param {string} tag The ending tag to look for.
+ *
+ * @return {boolean} True if the word is now a complete token (including the end tag),
+ *    false otherwise.
+###
+is_end_of_atomic_tag = (word, tag)->
+  (word.substring word.length - tag.length - 2) is "</#{tag}"
+
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
     @end_in_before = (@start_in_before + @length) - 1
     @end_in_after = (@start_in_after + @length) - 1
 
+###
+ * Tokenizes a string of HTML.
+ *
+ * @param {string} html The string to tokenize.
+ *
+ * @return {Array.<string>} The list of tokens.
+###
 html_to_tokens = (html)->
   mode = 'char'
   current_word = ''
+  current_atomic_tag = ''
   words = []
 
   for char in html
     switch mode
       when 'tag'
-        if is_end_of_tag char
+        atomic_tag = is_start_of_atomic_tag current_word
+        if atomic_tag
+          mode = 'atomic_tag'
+          current_atomic_tag = atomic_tag
+          current_word += char
+        else if is_end_of_tag char
           current_word += '>'
           words.push current_word
           current_word = ''
@@ -25,6 +65,16 @@ html_to_tokens = (html)->
             mode = 'whitespace'
           else
             mode = 'char'
+        else
+          current_word += char
+      when 'atomic_tag'
+        if (is_end_of_tag char) \
+        and (is_end_of_atomic_tag current_word, current_atomic_tag)
+          current_word += '>'
+          words.push current_word
+          current_word = ''
+          current_atomic_tag = ''
+          mode = 'char'
         else
           current_word += char
       when 'char'
@@ -36,11 +86,19 @@ html_to_tokens = (html)->
           words.push current_word if current_word
           current_word = char
           mode = 'whitespace'
-        else if /[\w\#@]+/i.test char
+        else if /[\w\d\#@]/.test char
+          # Consider '#' as part of the same word, since it might be part of an HTML escaped
+          # character (e.g. '&#160;').
           current_word += char
-        else
+        else if /&/.test char
+          # Consider '&' as the start of a new word, since it might be the start of an HTML
+          # escaped character (e.g. '&#160;').
           words.push current_word if current_word
           current_word = char
+        else
+          current_word += char
+          words.push current_word
+          current_word = ''
       when 'whitespace'
         if is_start_of_tag char
           words.push current_word if current_word
@@ -57,6 +115,28 @@ html_to_tokens = (html)->
   words.push current_word if current_word
   return words
 
+###
+ * Creates a key that should be used to match tokens. This is useful, for example, if we want
+ * to consider two open tag tokens as equal, even if they don't have the same attributes. We
+ * use a key instead of overwriting the token because we may want to render original string
+ * without losing the attributes.
+ *
+ * @param {string} token The token to create the key for.
+ *
+ * @return {string} The identifying key that should be used to match before and after tokens.
+###
+get_key_for_token = (token)->
+  # If the token is a tag, return just the tag with no attributes since we do not compare
+  # attributes yet.
+  tag_name = /<([^\s>]+)[\s>]/.exec token
+  return "<#{tag_name[1].toLowerCase()}>" if tag_name
+
+  # If the token is text, collapse adjacent whitespace and replace non-breaking spaces with
+  # regular spaces.
+  return token.replace /(\s+|&nbsp;|&#160;)/g, ' ' if token
+
+  return token
+
 find_match = (before_tokens, after_tokens,
   index_of_before_locations_in_after_tokens,
   start_in_before, end_in_before,
@@ -70,7 +150,7 @@ find_match = (before_tokens, after_tokens,
 
   for index_in_before in [start_in_before...end_in_before]
     new_match_length_at = {}
-    looking_for = before_tokens[index_in_before]
+    looking_for = get_key_for_token before_tokens[index_in_before]
     locations_in_after =
       index_of_before_locations_in_after_tokens[looking_for]
 
@@ -128,17 +208,32 @@ recursively_find_matching_blocks = (before_tokens, after_tokens,
 
   return matching_blocks
 
-create_index = (p)->
-  throw new Error 'params must have find_these key' unless p.find_these?
-  throw new Error 'params must have in_these key' unless p.in_these?
+###
+ * Creates an index (A.K.A. hash table) that will be used to match the list of before
+ * tokens with the list of after tokens.
+ *
+ * @param {Object} options An object with the following:
+ *    - {Array.<string>} find_these The list of tokens that will be used to search.
+ *    - {Array.<string>} in_these The list of tokens that will be returned.
+ *
+ * @return {Object} An index that can be used to search for tokens.
+###
+create_index = (options)->
+  throw new Error 'params must have find_these key' unless options.find_these?
+  throw new Error 'params must have in_these key' unless options.in_these?
+
+  queries = options.find_these.map (token)->
+    return get_key_for_token token
+  results = options.in_these.map (token)->
+    return get_key_for_token token
 
   index = {}
-  for token in p.find_these
-    index[token] = []
-    idx = p.in_these.indexOf token
+  for query in queries
+    index[query] = []
+    idx = results.indexOf query
     while idx isnt -1
-      index[token].push idx
-      idx = p.in_these.indexOf token, idx+1
+      index[query].push idx
+      idx = results.indexOf query, idx+1
 
   return index
 
@@ -240,7 +335,8 @@ wrap = (tag, content)->
     non_tags = consecutive_where position, content, isnt_tag
     position += non_tags.length
     if non_tags.length isnt 0
-      rendering += "<#{tag}>#{non_tags.join ''}</#{tag}>"
+      val = non_tags.join ''
+      rendering += "<#{tag}>#{val}</#{tag}>" if val.trim()
 
     break if position >= length
     tags = consecutive_where position, content, is_tag
@@ -251,7 +347,7 @@ wrap = (tag, content)->
 
 op_map =
   equal: (op, before_tokens, after_tokens)->
-    before_tokens[op.start_in_before..op.end_in_before].join ''
+    after_tokens[op.start_in_after..op.end_in_after].join ''
 
   insert: (op, before_tokens, after_tokens)->
     val = after_tokens[op.start_in_after..op.end_in_after]
@@ -287,6 +383,7 @@ diff.html_to_tokens = html_to_tokens
 diff.find_matching_blocks = find_matching_blocks
 find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
+find_matching_blocks.get_key_for_token = get_key_for_token
 diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
 

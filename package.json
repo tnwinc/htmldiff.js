@@ -4,8 +4,8 @@
     "description": "HTML Diffing in JavaScript (CoffeeScript)",
     "main": "htmldiff.js",
     "scripts": {
-        "test": "mocha -R min",
-        "install": "coffee --compile src"
+        "test": "mocha -R min --compilers coffee:coffee-script/register",
+        "install": "coffee --output js/ --compile src/"
     },
     "repository": {
         "type": "git",

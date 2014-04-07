@@ -63,3 +63,30 @@ describe 'render_operations', ->
 
       it 'should keep the change inside the <p>', ->
         (expect @res).to.equal '<p><del>this</del><ins>I</ins> is awesome</p>'
+
+  describe 'empty tokens', ->
+    it 'should not be wrapped', ->
+      before = ['text']
+      after = ['text', ' ']
+
+      @res = @cut before, after
+
+      (expect @res).to.equal 'text'
+
+  describe 'tags with attributes', ->
+    it 'should treat attribute changes as equal and output the after tag', ->
+      before = ['<p>', 'this', ' ', 'is', ' ', 'awesome', '</p>']
+      after = ['<p style="margin: 2px;" class="after">', 'this', ' ', 'is', ' ', 'awesome', '</p>']
+
+      @res = @cut before, after
+
+      (expect @res).to.equal '<p style="margin: 2px;" class="after">this is awesome</p>'
+
+    it 'should show changes within tags with different attributes', ->
+      before = ['<p>', 'this', ' ', 'is', ' ', 'awesome', '</p>']
+      after = ['<p style="margin: 2px;" class="after">', 'that', ' ', 'is', ' ', 'awesome', '</p>']
+
+      @res = @cut before, after
+
+      (expect @res).to.equal \
+        '<p style="margin: 2px;" class="after"><del>this</del><ins>that</ins> is awesome</p>'
