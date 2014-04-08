@@ -6,7 +6,8 @@ isnt_tag = (token)-> not is_tag token
 
 ###
  * Checks if the current word is the beginning of an atomic tag. An atomic tag is one whose
- * child nodes should not be compared - the entire tag should be treated as one token.
+ * child nodes should not be compared - the entire tag should be treated as one token. This
+ * is useful for tags where it does not make sense to insert <ins> and <del> tags.
  *
  * @param {string} word The characters of the current token read so far.
  *
@@ -118,7 +119,7 @@ html_to_tokens = (html)->
 ###
  * Creates a key that should be used to match tokens. This is useful, for example, if we want
  * to consider two open tag tokens as equal, even if they don't have the same attributes. We
- * use a key instead of overwriting the token because we may want to render original string
+ * use a key instead of overwriting the token because we may want to render the original string
  * without losing the attributes.
  *
  * @param {string} token The token to create the key for.
