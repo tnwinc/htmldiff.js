@@ -346,7 +346,7 @@ consecutive_where = (start, content, predicate)->
   return content[0..last_matching_index] if last_matching_index?
   return []
 
-wrap = (tag, content)->
+wrap = (tag, content, class_name)->
   rendering = ''
   position = 0
   length = content.length
@@ -357,7 +357,8 @@ wrap = (tag, content)->
     position += non_tags.length
     if non_tags.length isnt 0
       val = non_tags.join ''
-      rendering += "<#{tag}>#{val}</#{tag}>" if val.trim()
+      attrs = if class_name then " class=\"#{class_name}\"" else ''
+      rendering += "<#{tag}#{attrs}>#{val}</#{tag}>" if val.trim()
 
     break if position >= length
     tags = consecutive_where position, content, is_tag
@@ -367,29 +368,39 @@ wrap = (tag, content)->
   return rendering
 
 op_map =
-  equal: (op, before_tokens, after_tokens)->
+  equal: (op, before_tokens, after_tokens, class_name)->
     after_tokens[op.start_in_after..op.end_in_after].join ''
 
-  insert: (op, before_tokens, after_tokens)->
+  insert: (op, before_tokens, after_tokens, class_name)->
     val = after_tokens[op.start_in_after..op.end_in_after]
-    wrap 'ins', val
+    wrap 'ins', val, class_name
 
-  delete: (op, before_tokens, after_tokens)->
+  delete: (op, before_tokens, after_tokens, class_name)->
     val = before_tokens[op.start_in_before..op.end_in_before]
-    wrap 'del', val
+    wrap 'del', val, class_name
 
-op_map.replace = (op, before_tokens, after_tokens)->
-  (op_map.delete op, before_tokens, after_tokens) +
-  (op_map.insert op, before_tokens, after_tokens)
+op_map.replace = (op, before_tokens, after_tokens, class_name)->
+  (op_map.delete op, before_tokens, after_tokens, class_name) +
+  (op_map.insert op, before_tokens, after_tokens, class_name)
 
-render_operations = (before_tokens, after_tokens, operations)->
+render_operations = (before_tokens, after_tokens, operations, class_name)->
   rendering = ''
   for op in operations
-    rendering += op_map[op.action] op, before_tokens, after_tokens
+    rendering += op_map[op.action] op, before_tokens, after_tokens, class_name
 
   return rendering
 
-diff = (before, after)->
+###
+ * Compares two pieces of HTML content and returns the combined content with differences
+ * wrapped in <ins> and <del> tags.
+ *
+ * @param {string} before The HTML content before the changes.
+ * @param {string} after The HTML content after the changes.
+ * @param {string} class_name (Optional) The class attribute to include in <ins> and <del> tags.
+ *
+ * @return {string} The combined HTML content with differences wrapped in <ins> and <del> tags.
+###
+diff = (before, after, class_name)->
   return before if before is after
 
   before = html_to_tokens before
@@ -397,7 +408,7 @@ diff = (before, after)->
 
   ops = calculate_operations before, after
 
-  render_operations before, after, ops
+  render_operations before, after, ops, class_name
 
 
 diff.html_to_tokens = html_to_tokens

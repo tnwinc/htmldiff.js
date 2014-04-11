@@ -25,3 +25,8 @@ describe 'Diff', ->
 
     it 'should consider non-breaking spaces and non-adjacent regular spaces as equal', ->
       (expect @cut 'Hello&nbsp;world', 'Hello world').to.equal 'Hello world'
+
+  describe 'When a class name is specified', ->
+    it 'should include the class in the wrapper tags', ->
+      (expect @cut 'input', 'input 2', 'diff-result').to.equal \
+        'input<ins class="diff-result"> 2</ins>'

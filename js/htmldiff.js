@@ -414,8 +414,8 @@
     return [];
   };
 
-  wrap = function(tag, content) {
-    var length, non_tags, position, rendering, tags, val;
+  wrap = function(tag, content, class_name) {
+    var attrs, length, non_tags, position, rendering, tags, val;
     rendering = '';
     position = 0;
     length = content.length;
@@ -427,8 +427,9 @@
       position += non_tags.length;
       if (non_tags.length !== 0) {
         val = non_tags.join('');
+        attrs = class_name ? " class=\"" + class_name + "\"" : '';
         if (val.trim()) {
-          rendering += "<" + tag + ">" + val + "</" + tag + ">";
+          rendering += "<" + tag + attrs + ">" + val + "</" + tag + ">";
         }
       }
       if (position >= length) {
@@ -442,36 +443,48 @@
   };
 
   op_map = {
-    equal: function(op, before_tokens, after_tokens) {
+    equal: function(op, before_tokens, after_tokens, class_name) {
       return after_tokens.slice(op.start_in_after, +op.end_in_after + 1 || 9e9).join('');
     },
-    insert: function(op, before_tokens, after_tokens) {
+    insert: function(op, before_tokens, after_tokens, class_name) {
       var val;
       val = after_tokens.slice(op.start_in_after, +op.end_in_after + 1 || 9e9);
-      return wrap('ins', val);
+      return wrap('ins', val, class_name);
     },
-    "delete": function(op, before_tokens, after_tokens) {
+    "delete": function(op, before_tokens, after_tokens, class_name) {
       var val;
       val = before_tokens.slice(op.start_in_before, +op.end_in_before + 1 || 9e9);
-      return wrap('del', val);
+      return wrap('del', val, class_name);
     }
   };
 
-  op_map.replace = function(op, before_tokens, after_tokens) {
-    return (op_map["delete"](op, before_tokens, after_tokens)) + (op_map.insert(op, before_tokens, after_tokens));
+  op_map.replace = function(op, before_tokens, after_tokens, class_name) {
+    return (op_map["delete"](op, before_tokens, after_tokens, class_name)) + (op_map.insert(op, before_tokens, after_tokens, class_name));
   };
 
-  render_operations = function(before_tokens, after_tokens, operations) {
+  render_operations = function(before_tokens, after_tokens, operations, class_name) {
     var op, rendering, _i, _len;
     rendering = '';
     for (_i = 0, _len = operations.length; _i < _len; _i++) {
       op = operations[_i];
-      rendering += op_map[op.action](op, before_tokens, after_tokens);
+      rendering += op_map[op.action](op, before_tokens, after_tokens, class_name);
     }
     return rendering;
   };
 
-  diff = function(before, after) {
+
+  /*
+   * Compares two pieces of HTML content and returns the combined content with differences
+   * wrapped in <ins> and <del> tags.
+   *
+   * @param {string} before The HTML content before the changes.
+   * @param {string} after The HTML content after the changes.
+   * @param {string} class_name (Optional) The class attribute to include in <ins> and <del> tags.
+   *
+   * @return {string} The combined HTML content with differences wrapped in <ins> and <del> tags.
+   */
+
+  diff = function(before, after, class_name) {
     var ops;
     if (before === after) {
       return before;
@@ -479,7 +492,7 @@
     before = html_to_tokens(before);
     after = html_to_tokens(after);
     ops = calculate_operations(before, after);
-    return render_operations(before, after, ops);
+    return render_operations(before, after, ops, class_name);
   };
 
   diff.html_to_tokens = html_to_tokens;
