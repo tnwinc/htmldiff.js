@@ -90,3 +90,20 @@ describe 'render_operations', ->
 
       (expect @res).to.equal \
         '<p style="margin: 2px;" class="after"><del>this</del><ins>that</ins> is awesome</p>'
+
+  describe 'wrappable tags', ->
+    it 'should wrap void tags', ->
+      before = ['old', ' ', 'text']
+      after = ['new', '<br/>', ' ', 'text']
+
+      @res = @cut before, after
+
+      (expect @res).to.equal '<del>old</del><ins>new<br/></ins> text'
+
+    it 'should wrap atomic tags', ->
+      before = ['old', '<iframe src="source.html"></iframe>', ' ', 'text']
+      after = ['new', ' ', 'text']
+
+      @res = @cut before, after
+
+      (expect @res).to.equal '<del>old<iframe src="source.html"></iframe></del><ins>new</ins> text'

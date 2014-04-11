@@ -15,7 +15,7 @@ isnt_tag = (token)-> not is_tag token
  *    null otherwise
 ###
 is_start_of_atomic_tag = (word)->
-  result = /^<(iframe|object|math|svg)/.exec word
+  result = /^<(iframe|object|math|svg|script)/.exec word
   result = result[1] if result
   return result
 
@@ -31,6 +31,26 @@ is_start_of_atomic_tag = (word)->
 ###
 is_end_of_atomic_tag = (word, tag)->
   (word.substring word.length - tag.length - 2) is "</#{tag}"
+
+###
+ * Checks if a tag is a void tag.
+ *
+ * @param {string} token The token to check.
+ *
+ * @return {boolean} True if the token is a void tag, false otherwise.
+###
+is_void_tag = (token) ->
+  /^\s*<[^>]+\/>\s*$/.test token
+
+###
+ * Checks if a token can be wrapped inside a tag.
+ *
+ * @param {string} token The token to check.
+ *
+ * @return {boolean} True if the token can be wrapped inside a tag, false otherwise.
+###
+is_wrappable = (token) ->
+  (isnt_tag token) or (is_start_of_atomic_tag token) or (is_void_tag token)
 
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
@@ -333,7 +353,7 @@ wrap = (tag, content)->
 
   loop
     break if position >= length
-    non_tags = consecutive_where position, content, isnt_tag
+    non_tags = consecutive_where position, content, is_wrappable
     position += non_tags.length
     if non_tags.length isnt 0
       val = non_tags.join ''
