@@ -5,7 +5,7 @@
     "main": "htmldiff.js",
     "scripts": {
         "test": "mocha -R min",
-        "install": "coffee --output js/ --compile src/"
+        "install": "coffee --compile src"
     },
     "repository": {
         "type": "git",
