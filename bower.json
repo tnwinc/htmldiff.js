@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "description": "HTML Diffing in JavaScript (CoffeeScript)",
   "main": "dist/htmldiff.js",
-  "license": "MIT (Expat)"
+  "license": "MIT (Expat)",
   "authors": [
     "The Network Inc.",
     "https://github.com/brendanjerwin",
