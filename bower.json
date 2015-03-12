@@ -6,9 +6,9 @@
   "license": "MIT (Expat)"
   "authors": [
     "The Network Inc.",
-    https://github.com/brendanjerwin,
-    https://github.com/tnwinc,
-    https://github.com/myobie/htmldiff
+    "https://github.com/brendanjerwin",
+    "https://github.com/tnwinc",
+    "https://github.com/myobie/htmldiff"
   ],
   "repository": {
     "type": "git",
