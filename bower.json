@@ -1,7 +1,7 @@
 {
   "name": "htmldiff",
   "version": "0.0.4",
-  "description": "HTML Diffing in JavaScript (CoffeeScript),
+  "description": "HTML Diffing in JavaScript (CoffeeScript)",
   "main": "dist/htmldiff.js",
   "license": "MIT (Expat)"
   "authors": [
