@@ -27,7 +27,7 @@
   "_resolution": {
     "type": "version",
     "tag": "v0.0.4",
-    "commit": "1f042b0960d7fef594f14887166b48937f147254"
+    "commit": "26d252d94bdd7dad22df8ac273990266aa677cd6"
   },
   "_source": "https://github.com/enkodellc/htmldiff.js.git",
   "_target": "0.0.4",
