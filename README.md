@@ -14,7 +14,7 @@ You use it like this:
 
 ```coffeescript
 
-  diff = require 'htmldiff.js'
+  diff = require 'htmldiff'
   console.log diff '<p>this is some text</p>', '<p>this is some more text</p>'
 ```
 And you get:
