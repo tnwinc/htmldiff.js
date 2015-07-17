@@ -1,0 +1,35 @@
+{
+  "name": "htmldiff",
+  "version": "0.0.4",
+  "description": "HTML Diffing in JavaScript (CoffeeScript)",
+  "main": "dist/htmldiff.js",
+  "license": "MIT (Expat)",
+  "authors": [
+    "The Network Inc.",
+    "https://github.com/brendanjerwin",
+    "https://github.com/tnwinc",
+    "https://github.com/myobie/htmldiff"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/benjamine/jsondiffpatch.git"
+  },
+  "keywords": [
+    "html",
+    "diff",
+    "split"
+  ],
+  "ignore": [
+    "gulpfile.js"
+  ],
+  "homepage": "https://github.com/enkodellc/htmldiff",
+  "_release": "0.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.4",
+    "commit": "26d252d94bdd7dad22df8ac273990266aa677cd6"
+  },
+  "_source": "https://github.com/enkodellc/htmldiff.js.git",
+  "_target": "0.0.4",
+  "_originalSource": "htmldiff"
+}

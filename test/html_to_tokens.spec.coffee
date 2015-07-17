@@ -28,3 +28,7 @@ describe 'html_to_tokens', ->
   it 'should identify self closing tags as tokens', ->
     (expect @cut '<p>hello</br>goodbye</p>')
     .eql ['<p>', 'hello', '</br>', 'goodbye', '</p>']
+
+  it 'should identify scripts as single tokens', ->
+    (expect @cut '<script>int bob = 0;</script>')
+    .eql ['<script>int bob = 0;</script>']

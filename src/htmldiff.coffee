@@ -3,11 +3,18 @@ is_start_of_tag = (char)-> char is '<'
 is_whitespace = (char)-> /^\s+$/.test char
 is_tag = (token)-> /^\s*<[^>]+>\s*$/.test token
 isnt_tag = (token)-> not is_tag token
+is_script_tag = (token) -> token is '<script'
+ends_in_end_script_tag = (token) -> 
+  token_end = token.substr token.length - 9
+  token_end is '</script>'
 
 class Match
   constructor: (@start_in_before, @start_in_after, @length)->
     @end_in_before = (@start_in_before + @length) - 1
     @end_in_after = (@start_in_after + @length) - 1
+
+return_dual_pane = (before, after)->
+  { before: before, after: after }
 
 html_to_tokens = (html)->
   mode = 'char'
@@ -16,8 +23,23 @@ html_to_tokens = (html)->
 
   for char in html
     switch mode
-      when 'tag'
+      when 'script'
         if is_end_of_tag char
+          current_word += '>'
+          if ends_in_end_script_tag current_word
+            words.push current_word
+            current_word = ''
+            if is_whitespace char
+              mode = 'whitespace'
+            else
+              mode = 'char'
+        else
+          current_word += char
+      when 'tag'
+        if is_script_tag current_word
+          mode = 'script'
+          current_word += char
+        else if is_end_of_tag char
           current_word += '>'
           words.push current_word
           current_word = ''
@@ -262,15 +284,46 @@ op_map =
     wrap 'del', val
 
 op_map.replace = (op, before_tokens, after_tokens)->
-  (op_map.delete op, before_tokens, after_tokens) +
-  (op_map.insert op, before_tokens, after_tokens)
+  [(op_map.delete op, before_tokens, after_tokens),
+  (op_map.insert op, before_tokens, after_tokens)]
 
 render_operations = (before_tokens, after_tokens, operations)->
   rendering = ''
   for op in operations
-    rendering += op_map[op.action] op, before_tokens, after_tokens
+    result = op_map[op.action] op, before_tokens, after_tokens
+    if op.action is 'replace'
+      rendering += result[0] + result[1]
+    else
+      rendering += result
 
   return rendering
+
+render_operations_dual_pane = (before_tokens, after_tokens, operations)->
+  before_render = ''
+  after_render = ''
+  for op in operations
+    next_block = op_map[op.action] op, before_tokens, after_tokens
+    switch op.action
+      when "equal"
+        before_render += next_block
+        after_render += next_block
+      when "insert" then after_render += next_block
+      when "delete" then before_render += next_block
+      when "replace"
+        before_render += next_block[0]
+        after_render += next_block[1]
+
+  return_dual_pane(before_render, after_render)
+
+diff_dual_pane = (before, after ) ->
+  return return_dual_pane(before, after) if before is after
+
+  before = html_to_tokens before
+  after = html_to_tokens after
+
+  ops = calculate_operations before, after
+
+  render_operations_dual_pane before, after, ops
 
 diff = (before, after)->
   return before if before is after
@@ -282,13 +335,14 @@ diff = (before, after)->
 
   render_operations before, after, ops
 
-
 diff.html_to_tokens = html_to_tokens
 diff.find_matching_blocks = find_matching_blocks
 find_matching_blocks.find_match = find_match
 find_matching_blocks.create_index = create_index
 diff.calculate_operations = calculate_operations
 diff.render_operations = render_operations
+diff.render_operations_dual_pane = render_operations_dual_pane
+diff.diff_dual_pane = diff_dual_pane
 
 if typeof define is 'function'
   define [], ()-> diff
